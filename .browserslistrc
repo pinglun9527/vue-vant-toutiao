@@ -1,3 +1,6 @@
-> 1%
-last 2 versions
-not dead
+#> 1%
+#last 2 version
+#not dead
+#user add
+Android >= 4.0
+iOS >= 8
