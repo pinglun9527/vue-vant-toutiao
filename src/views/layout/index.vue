@@ -4,11 +4,27 @@
     <router-view />
 
     <!-- tabbar start -->
-    <van-tabbar v-model="active" route>
-      <van-tabbar-item to="/" icon="home-o">首页</van-tabbar-item>
-      <van-tabbar-item to="/search" icon="search">搜索</van-tabbar-item>
-      <van-tabbar-item to="/video" icon="video-o" badge="2">视频</van-tabbar-item>
-      <van-tabbar-item to="/my" icon="user-o">我的</van-tabbar-item>
+    <van-tabbar
+      v-model="active"
+      route
+    >
+      <van-tabbar-item
+        to="/"
+        icon="home-o"
+      >首页</van-tabbar-item>
+      <van-tabbar-item
+        to="/search"
+        icon="search"
+      >搜索</van-tabbar-item>
+      <van-tabbar-item
+        to="/video"
+        icon="video-o"
+        badge="2"
+      >视频</van-tabbar-item>
+      <van-tabbar-item
+        to="/login"
+        icon="user-o"
+      >我的</van-tabbar-item>
     </van-tabbar>
     <!-- tabbar end -->
   </div>
@@ -25,7 +41,8 @@ export default {
     }
   },
   computed: {},
-  methods: {},
+  methods: {
+  },
   watch: {},
   mounted () {},
   created () {}

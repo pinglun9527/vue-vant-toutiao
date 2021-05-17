@@ -8,14 +8,16 @@
     />
     <!-- login form start -->
     <van-form
-    :show-error="false"
-    :show-error-message="false"
-    @submit="onSubmit"
-    @failed="onFailed"
+      :show-error="false"
+      :show-error-message="false"
+      ref="loginForm"
+      @submit="onSubmit"
+      @failed="onFailed"
     >
       <van-field
         v-model="user.mobile"
         type="tel"
+        name="mobile"
         icon-prefix="toutiao"
         left-icon="shouji"
         placeholder="请输入手机号"
@@ -26,19 +28,37 @@
         center
         clearable
         type="number"
+        name="code"
         icon-prefix="toutiao"
         left-icon="yanzhengma"
         placeholder="请输入短信验证码"
         :rules="rulesForm.code"
       >
         <template #button>
-          <van-button color="#4e4e4e" size="small" native-type="button">
+          <van-count-down
+            v-if="show"
+            :time="time"
+            format="ss 秒"
+            @finish="onFinish"
+          />
+          <van-button
+            v-else
+            color="#4e4e4e"
+            size="small"
+            native-type="button"
+            @click="onSendSms"
+          >
             发送验证码
           </van-button>
         </template>
       </van-field>
       <div style="margin: 16px">
-        <van-button color="#3296fa" block type="info" native-type="submit">
+        <van-button
+          color="#3296fa"
+          block
+          type="info"
+          native-type="submit"
+        >
           登录
         </van-button>
       </div>
@@ -49,15 +69,15 @@
 
 <script>
 import { toast } from 'vant'
-import { login } from '@/api/user'
+import { login, sendSms } from '@/api/user'
 export default {
   name: 'LoginIndex',
-  components: {},
-  props: [],
   data () {
     return {
+      time: 1000 * 60,
+      show: false,
       user: {
-        mobile: '13838381438',
+        mobile: '17318002030',
         code: '246810'
       },
       rulesForm: {
@@ -72,10 +92,12 @@ export default {
       }
     }
   },
-  computed: {},
   methods: {
     onClickLeft () {
       toast('返回')
+    },
+    onFinish () {
+      this.show = false
     },
     onFailed (error) {
       if (error.errors[0]) {
@@ -85,6 +107,32 @@ export default {
         })
       }
     },
+    onSendSms () {
+      this.$refs.loginForm.validate('mobile')
+        .then(() => {
+          console.log('send success')
+          this.show = true
+          return sendSms(this.user.mobile)
+        })
+        .then((res) => {
+          console.log(res)
+        })
+        .catch((error) => {
+          console.log('send error')
+          let message = ''
+          if (error && error.response && error.response.status === 429) {
+            message = '发送太频繁，请稍后重试.'
+          } else if (error.name === 'mobile') {
+            message = error.message
+          } else {
+            message = '未知错误，请稍后重试.'
+          }
+          this.$toast({
+            position: 'top',
+            message
+          })
+        })
+    },
     onSubmit () {
       this.$toast.loading({
         duration: 0,
@@ -92,15 +140,21 @@ export default {
         message: '登录中...'
       })
 
-      login(this.user).then((response) => {
-        console.log(response)
-        this.$toast.success('登录成功')
-      }).catch((error) => {
-        console.log(error)
-        this.$toast.fail('登录失败')
-      })
+      login(this.user)
+        .then((response) => {
+          const { data } = response.data
+          this.$store.commit('SET_TOKEN', data.token)
+          this.$toast.success('登录成功')
+        })
+        .catch((error) => {
+          console.log(error)
+          this.$toast.fail('登录失败')
+        })
     }
   },
+  components: {},
+  props: [],
+  computed: {},
   watch: {},
   mounted () {},
   created () {}
